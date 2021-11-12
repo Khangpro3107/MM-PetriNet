@@ -1,14 +1,17 @@
-import pygame as pg
+from pygame import init, time, font, display, Rect, Color, draw, event, KEYDOWN, KEYUP, QUIT, K_SPACE,\
+    K_s, K_c, K_e, K_u, K_UP, K_DOWN, K_BACKSPACE, K_ESCAPE, MOUSEBUTTONDOWN
+from pygame.font import SysFont
 
-pg.init()
-pg.font.init()
-screen = pg.display.set_mode((800, 600))
-pg.display.set_caption("Petri Net")
-font = pg.font.SysFont('Calibri', 24, True)
-title_font = pg.font.SysFont('Consolas', 36, True)
-choice_font = pg.font.SysFont('Consolas', 24, True)
-small_font = pg.font.SysFont('Calibri', 16, True)
-tiny_font = pg.font.SysFont('Consolas', 10)
+init()
+font.init()
+screen = display.set_mode((800, 600))
+display.set_caption("Petri Net")
+
+font = SysFont('Calibri', 24, True)
+title_font = SysFont('Calibri', 36, True)
+choice_font = SysFont('Consolas', 24, True)
+small_font = SysFont('Calibri', 16, True)
+tiny_font = SysFont('Consolas', 12, True)
 
 color_black = (0, 0, 0)
 color_white = (255, 255, 255)
@@ -20,26 +23,51 @@ place_radius = 25
 transition_width = 40
 line_width = 2
 
-def draw_choice_box(text_color, background_color, choice_text, posY, posX=400) -> None:
-    text = choice_font.render(choice_text, True, text_color, background_color)
+def print_raw_text(msg: str, color, posX: int, posY: int, _font, _antialias=True):
+    text = _font.render(msg, _antialias, color)
+    screen.blit(text, (posX, posY))
+
+def print_text(msg: str, posX: int, posY: int, _color, _font, _antialias=True, _background=None) -> None:
+    text = _font.render(msg, _antialias, _color, _background)
     text_rect = text.get_rect()
     text_rect.center = (posX, posY)
     screen.blit(text, text_rect)
 
+def draw_choice_box(text_color, background_color, choice_text, posY, posX=400) -> None:
+    print_text(choice_text, posX, posY, text_color,
+               choice_font, True, background_color)
+
 def user_choice() -> None:
-    title_text = title_font.render("This is the title", True, color_black)
-    title_text_rect = title_text.get_rect()
-    title_text_rect.center = (400, 50)
-    screen.blit(title_text, title_text_rect)
+    print_text("Petri Net Modeling", 400, 70, color_black, title_font, True)
     draw_choice_box(color_red, color_green, '  Demo Item 1  ', 150)
     draw_choice_box(color_red, color_green, '  Demo Item 2  ', 210)
     draw_choice_box(color_red, color_green, '  Demo Item 3  ', 270)
     draw_choice_box(color_red, color_green, '  Demo Item 4  ', 330)
-    guide_text = tiny_font.render(
-        'Press arrow keys to choose and press spacebar key to confirm.', True, color_black)
-    guide_text_rect = guide_text.get_rect()
-    guide_text_rect.center = (400, 560)
-    screen.blit(guide_text, guide_text_rect)
+    print_text('Choose: UP & DOWN  Confirm: Spacebar',
+               400, 560, color_black, tiny_font)
+
+def draw_moving_choice_box(choice_text_color, background_color, msg: str, posX: int, posY: int, direction='U'):
+    if direction == 'U':
+        current_posY = 650
+        while current_posY > posY + 20:
+            draw_choice_box(choice_text_color, background_color,
+                            msg, current_posY, posX)
+            current_posY -= 3
+        while current_posY < posY:
+            draw_choice_box(choice_text_color, background_color,
+                            msg, current_posY, posX)
+            current_posY += 2
+    elif direction == 'L':
+        current_posX = 850
+        while current_posX > posX + 20:
+            draw_choice_box(choice_text_color, background_color,
+                            msg, posY, current_posX)
+            current_posX -= 3
+        while current_posX < posX:
+            draw_choice_box(choice_text_color, background_color,
+                            msg, posY, current_posX)
+            current_posX += 2
+    draw_choice_box(choice_text_color, background_color, msg, posY, posX)
 
 def show_menu():
     exercise_index = -1
@@ -50,224 +78,267 @@ def show_menu():
         user_choice()
         if exercise_index == 0:
             draw_choice_box(color_black, color_yellow, '  Demo Item 1  ', 150)
+            print_text('Simulate the Petri Net of Item 1: Patient Net Work',
+                400, 500, color_black, tiny_font)
         elif exercise_index == 1:
             draw_choice_box(color_black, color_yellow, '  Demo Item 2  ', 210)
+            print_text('Simulate the Petri Net of Item 2: Specialist Net Work',
+                400, 500, color_black, tiny_font)
         elif exercise_index == 2:
             draw_choice_box(color_black, color_yellow, '  Demo Item 3  ', 270)
+            print_text('Simulate the Petri Net of Item 3: Superimposed Net Work',
+                400, 500, color_black, tiny_font)
         elif exercise_index == 3:
             draw_choice_box(color_black, color_yellow, '  Demo Item 4  ', 330)
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
+            print_text('Simulate the Petri Net of Item 4: Reachable Markings',
+                400, 500, color_black, tiny_font)
+        for  _event in event.get():
+            if  _event.type == QUIT:
                 run = False
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_DOWN:
+            elif  _event.type == KEYDOWN:
+                if  _event.key == K_DOWN:
                     if exercise_index == 3:
                         exercise_index = 0
                     else:
                         exercise_index += 1
-                if event.key == pg.K_UP:
+                if  _event.key == K_UP:
                     if exercise_index == 0:
                         exercise_index = 3
                     elif exercise_index >= 0:
                         exercise_index -= 1
-                if event.key == pg.K_SPACE:
+                if  _event.key == K_SPACE:
                     flag_continue = True
                     run = False
-            elif event.type == pg.KEYUP:
+            elif  _event.type == KEYUP:
                 pass
-        pg.display.update()
+        display.update()
     return exercise_index, flag_continue
 
 def input_promt1():
     user_input = ["", "", ""]
-    text_wait = font.render("wait", True, color_black)
-    text_inside = font.render("inside", True, color_black)
-    text_done = font.render("done", True, color_black)
     flag_continue = False
-    input_rect = [pg.Rect(200, 200, 80, 24), pg.Rect(
-        400, 200, 80, 24), pg.Rect(600, 200, 80, 24)]
-    color_active = pg.Color(color_yellow)
-    color_passive = pg.Color(color_white)
+    showing_menu = False
+    input_rect = [Rect(200, 200, 80, 24), Rect(
+        400, 200, 80, 24), Rect(600, 200, 80, 24)]
+    color_active = Color(color_yellow)
+    color_passive = Color(color_white)
     color = [color_passive, color_passive, color_passive]
     active = [False, False, False]
     running = True
     while running:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
+        for  _event in event.get():
+            if  _event.type == QUIT:
                 running = False
-            if event.type == pg.MOUSEBUTTONDOWN:
+            if  _event.type == MOUSEBUTTONDOWN:
                 for i in range(3):
-                    if input_rect[i].collidepoint(event.pos):
+                    if input_rect[i].collidepoint( _event.pos):
                         active[i] = True
                         color[i] = color_active
                     else:
                         active[i] = False
                         color[i] = color_passive
-            if event.type == pg.KEYDOWN:
+            if  _event.type == KEYDOWN:
                 for i in range(3):
                     if active[i]:
-                        if event.key == pg.K_BACKSPACE:
+                        if  _event.key == K_BACKSPACE:
                             user_input[i] = user_input[i][:-1]
                         else:
-                            temp = event.unicode
-                            if temp <= '9' and temp >= '0':
-                                user_input[i] += temp
-                if event.key == pg.K_SPACE:
+                            temp =  _event.unicode
+                            if not (len(user_input[i]) == 0 and temp == '0') and (temp <= '9' and temp >= '0'):
+                                if len(user_input[i]) >= 1:
+                                    user_input[i] = '10'
+                                else:
+                                    user_input[i] += temp
+                if  _event.key == K_SPACE:
                     flag_continue = True
                     running = False
-            if event.type == pg.KEYUP:
+                    showing_menu = False
+                if _event.key == K_ESCAPE:
+                    running = False
+                    showing_menu = True
+                    flag_continue = True
+            if  _event.type == KEYUP:
                 pass
         screen.fill(background_main)
-        screen.blit(text_wait, (150, 200))
-        screen.blit(text_inside, (335, 200))
-        screen.blit(text_done, (550, 200))
-        util_text = font.render("Please input the amount of tokens in each place", True, color_black)
-        util_text_rect = util_text.get_rect()
-        util_text_rect.center = (400, 100)
-        screen.blit(util_text, util_text_rect)
+        print_raw_text('wait', color_black, 150, 200, font)
+        print_raw_text('inside', color_black, 335, 200, font)
+        print_raw_text('done', color_black, 550, 200, font)
+        print_text('Enter the initial number of tokens in each place',
+                   400, 110, color_black, font)
+        print_text('ITEM 1', 400, 50, color_red, title_font)
+        print_text('Delete: Backspace  Confirm: Spacebar  Back: Esc',
+                   400, 545, color_black, tiny_font)
+        print_text('Click on a box to enter the required number',
+                   400, 560, color_black, tiny_font)
+        print_text('Note: You can only enter numbers. If a box is empty, a default value of 0 will be entered.',
+                   400, 590, color_black, tiny_font)
+        print_text('The maximum number of tokens a place can receive as input is 10',
+                   400, 575, color_black, tiny_font)
         for i in range(3):
             text_surface = font.render(user_input[i], True, color_black)
-            pg.draw.rect(screen, color[i], input_rect[i])
+            draw.rect(screen, color[i], input_rect[i])
             screen.blit(
                 text_surface, (input_rect[i].x, input_rect[i].y))
-        pg.display.update()
+        display.update()
     for i in range(3):
         if len(user_input[i]):
             user_input[i] = int(user_input[i])
         else:
             user_input[i] = 0
-    return user_input, flag_continue
+    return user_input, flag_continue, showing_menu
 
 def input_promt2():
     user_input = ["", "", ""]
-    text_free = font.render("free", True, color_black)
-    text_busy = font.render("busy", True, color_black)
-    text_docu = font.render("docu", True, color_black)
     flag_continue = False
-    input_rect = [pg.Rect(200, 200, 80, 24), pg.Rect(
-        400, 200, 80, 24), pg.Rect(600, 200, 80, 24)]
-    color_active = pg.Color(color_yellow)
-    color_passive = pg.Color(color_white)
+    showing_menu = False
+    input_rect = [Rect(200, 200, 80, 24), Rect(
+        400, 200, 80, 24), Rect(600, 200, 80, 24)]
+    color_active = Color(color_yellow)
+    color_passive = Color(color_white)
     color = [color_passive, color_passive, color_passive]
     active = [False, False, False]
     running = True
     while running:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
+        for  _event in event.get():
+            if  _event.type == QUIT:
                 running = False
-            if event.type == pg.MOUSEBUTTONDOWN:
+            if  _event.type == MOUSEBUTTONDOWN:
                 for i in range(3):
-                    if input_rect[i].collidepoint(event.pos):
+                    if input_rect[i].collidepoint( _event.pos):
                         active[i] = True
                         color[i] = color_active
                     else:
                         active[i] = False
                         color[i] = color_passive
-            if event.type == pg.KEYDOWN:
+            if  _event.type == KEYDOWN:
                 for i in range(3):
                     if active[i]:
-                        if event.key == pg.K_BACKSPACE:
+                        if  _event.key == K_BACKSPACE:
                             user_input[i] = user_input[i][:-1]
                         else:
-                            temp = event.unicode
-                            if temp <= '9' and temp >= '0':
-                                user_input[i] += temp
-                if event.key == pg.K_SPACE:
+                            temp =  _event.unicode
+                            if not (len(user_input[i]) == 0 and temp == '0') and (temp <= '9' and temp >= '0'):
+                                if len(user_input[i]) >= 1:
+                                    user_input[i] = '10'
+                                else:
+                                    user_input[i] += temp
+                if  _event.key == K_SPACE:
                     flag_continue = True
                     running = False
-            if event.type == pg.KEYUP:
+                if _event.key == K_ESCAPE:
+                    running = False
+                    showing_menu = True
+                    flag_continue = True
+            if  _event.type == KEYUP:
                 pass
         screen.fill(background_main)
-        screen.blit(text_free, (150, 200))
-        screen.blit(text_busy, (350, 200))
-        screen.blit(text_docu, (550, 200))
-        util_text = font.render("Please input the amount of tokens in each place", True, color_black)
-        util_text_rect = util_text.get_rect()
-        util_text_rect.center = (400, 100)
-        screen.blit(util_text, util_text_rect)
+        print_raw_text('free', color_black, 150, 200, font)
+        print_raw_text('busy', color_black, 350, 200, font)
+        print_raw_text('docu', color_black, 550, 200, font)
+        print_text('Enter the initial number of tokens in each place',
+                   400, 110, color_black, font)
+        print_text('ITEM 2', 400, 50, color_red, title_font)
+        print_text('Delete: Backspace  Confirm: Spacebar  Back: Esc',
+                   400, 545, color_black, tiny_font)
+        print_text('Click on a box to enter the required number',
+                   400, 560, color_black, tiny_font)
+        print_text('Note: You can only enter numbers. If a box is empty, a default value of 0 will be entered.',
+                   400, 590, color_black, tiny_font)
+        print_text('The maximum number of tokens a place can receive as input is 10',
+                   400, 575, color_black, tiny_font)
         for i in range(3):
             text_surface = font.render(user_input[i], True, color_black)
-            pg.draw.rect(screen, color[i], input_rect[i])
+            draw.rect(screen, color[i], input_rect[i])
             screen.blit(
                 text_surface, (input_rect[i].x, input_rect[i].y))
-        pg.display.update()
+        display.update()
     for i in range(3):
         if len(user_input[i]):
             user_input[i] = int(user_input[i])
         else:
             user_input[i] = 0
-    return user_input, flag_continue
+    return user_input, flag_continue, showing_menu
 
 def input_promt3():
     user_input = ["", "", "", "", "", ""]
-    text_wait = font.render("wait", True, color_black)
-    text_inside = font.render("inside", True, color_black)
-    text_done = font.render("done", True, color_black)
-    text_free = font.render("free", True, color_black)
-    text_busy = font.render("busy", True, color_black)
-    text_docu = font.render("docu", True, color_black)
     flag_continue = False
-    input_rect = [pg.Rect(200, 200, 80, 24), pg.Rect(
-        400, 200, 80, 24), pg.Rect(600, 200, 80, 24), pg.Rect(200, 400, 80, 24), pg.Rect(400, 400, 80, 24), pg.Rect(600, 400, 80, 24)]
-    color_active = pg.Color(color_yellow)
-    color_passive = pg.Color(color_white)
-    color = [color_passive, color_passive, color_passive, color_passive, color_passive, color_passive]
+    showing_menu = False
+    input_rect = [Rect(200, 200, 80, 24), Rect(
+        400, 200, 80, 24), Rect(600, 200, 80, 24), Rect(200, 400, 80, 24), Rect(400, 400, 80, 24), Rect(600, 400, 80, 24)]
+    color_active = Color(color_yellow)
+    color_passive = Color(color_white)
+    color = [color_passive, color_passive, color_passive,
+             color_passive, color_passive, color_passive]
     active = [False, False, False, False, False, False]
     running = True
     while running:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
+        for  _event in event.get():
+            if  _event.type == QUIT:
                 running = False
-            if event.type == pg.MOUSEBUTTONDOWN:
+            if  _event.type == MOUSEBUTTONDOWN:
                 for i in range(6):
-                    if input_rect[i].collidepoint(event.pos):
+                    if input_rect[i].collidepoint( _event.pos):
                         active[i] = True
                         color[i] = color_active
                     else:
                         active[i] = False
                         color[i] = color_passive
-            if event.type == pg.KEYDOWN:
+            if  _event.type == KEYDOWN:
                 for i in range(6):
                     if active[i]:
-                        if event.key == pg.K_BACKSPACE:
+                        if  _event.key == K_BACKSPACE:
                             user_input[i] = user_input[i][:-1]
                         else:
-                            temp = event.unicode
-                            if temp <= '9' and temp >= '0':
-                                user_input[i] += temp
-                if event.key == pg.K_SPACE:
+                            temp =  _event.unicode
+                            if not (len(user_input[i]) == 0 and temp == '0') and (temp <= '9' and temp >= '0'):
+                                if len(user_input[i]) >= 1:
+                                    user_input[i] = '10'
+                                else:
+                                    user_input[i] += temp
+                if  _event.key == K_SPACE:
                     flag_continue = True
                     running = False
-            if event.type == pg.KEYUP:
+                if _event.key == K_ESCAPE:
+                    running = False
+                    showing_menu = True
+                    flag_continue = True
+            if  _event.type == KEYUP:
                 pass
         screen.fill(background_main)
-        screen.blit(text_free, (150, 200))
-        screen.blit(text_busy, (335, 200))
-        screen.blit(text_docu, (550, 200))
-        screen.blit(text_wait, (150, 400))
-        screen.blit(text_inside, (335, 400))
-        screen.blit(text_done, (550, 400))
-        util_text = font.render("Please input the amount of tokens in each place", True, color_black)
-        util_text_rect = util_text.get_rect()
-        util_text_rect.center = (400, 100)
-        screen.blit(util_text, util_text_rect)
+        print_raw_text('free', color_black, 150, 200, font)
+        print_raw_text('busy', color_black, 335, 200, font)
+        print_raw_text('docu', color_black, 550, 200, font)
+        print_raw_text('wait', color_black, 150, 400, font)
+        print_raw_text('inside', color_black, 335, 400, font)
+        print_raw_text('done', color_black, 550, 400, font)
+        print_text('Enter the initial number of tokens in each place',
+                   400, 110, color_black, font)
+        print_text('ITEM 3', 400, 50, color_red, title_font)
+        print_text('Delete: Backspace  Confirm: Spacebar  Back: Esc',
+                   400, 545, color_black, tiny_font)
+        print_text('Click on a box to enter the required number',
+                   400, 560, color_black, tiny_font)
+        print_text('Note: You can only enter numbers. If a box is empty, a default value of 0 will be entered.',
+                   400, 590, color_black, tiny_font)
+        print_text('The maximum number of tokens a place can receive as input is 10',
+                   400, 575, color_black, tiny_font)
         for i in range(6):
             text_surface = font.render(user_input[i], True, color_black)
-            pg.draw.rect(screen, color[i], input_rect[i])
+            draw.rect(screen, color[i], input_rect[i])
             screen.blit(
                 text_surface, (input_rect[i].x, input_rect[i].y))
-        pg.display.update()
+        display.update()
     for i in range(6):
         if len(user_input[i]):
             user_input[i] = int(user_input[i])
         else:
             user_input[i] = 0
-    return user_input, flag_continue
+    return user_input, flag_continue, showing_menu
 
 def draw_arrow(start_pos, end_pos, other_pos1, other_pos2, color=color_black) -> None:
-    pg.draw.line(screen, color, start_pos, end_pos, line_width)
-    pg.draw.line(screen, color, other_pos1, end_pos, line_width)
-    pg.draw.line(screen, color, other_pos2, end_pos, line_width)
+    draw.line(screen, color, start_pos, end_pos, line_width)
+    draw.line(screen, color, other_pos1, end_pos, line_width)
+    draw.line(screen, color, other_pos2, end_pos, line_width)
 
 class Node:
     def __init__(self, name: str) -> None:
@@ -298,20 +369,14 @@ class Place:
         self.out_arcs = []
 
     def show_tokens(self, posX: int, posY: int, color=color_black) -> None:
-        text = font.render(str(self.holding), True, color)
-        text_rect = text.get_rect()
-        text_rect.center = (posX, posY)
-        screen.blit(text, text_rect)
+        print_text(str(self.holding), posX, posY, color, font)
 
     def draw(self, posX: int, posY: int, color=color_black, position='D') -> None:
-        pg.draw.circle(screen, color, (posX, posY), place_radius, line_width)
-        text = font.render(self.name, True, color)
-        text_rect = text.get_rect()
+        draw.circle(screen, color, (posX, posY), place_radius, line_width)
         if position == 'D':
-            text_rect.center = (posX, posY + place_radius + 10)
+            print_text(self.name, posX, posY + place_radius + 10, color, font)
         else:
-            text_rect.center = (posX, posY - place_radius - 12)
-        screen.blit(text, text_rect)
+            print_text(self.name, posX, posY - place_radius - 12, color, font)
         self.show_tokens(posX, posY + 3, color)
 
 
@@ -339,15 +404,13 @@ class Transition(Node):
         self.posX = posX
         self.posY = posY
         self.label_position = label_position
-        pg.draw.rect(screen, color, pg.Rect(
+        draw.rect(screen, color, Rect(
             posX, posY, transition_width, transition_width), line_width)
-        text = font.render(self.name, True, color)
-        text_rect = text.get_rect()
         if label_position == 'D':
-            text_rect.center = (posX + 20, posY + transition_width + 15)
+            print_text(self.name, posX + 20, posY +
+                       transition_width + 15, color, font)
         else:
-            text_rect.center = (posX + 20, posY - 15)
-        screen.blit(text, text_rect)
+            print_text(self.name, posX + 20, posY - 15, color, font)
 
 
 class PetriNet:
@@ -375,21 +438,19 @@ class PetriNet:
                 printing_str = printing_str + \
                     str(place.holding) + "." + place.name + ","
             i += 1
-        text = font.render(printing_str, True, color)
-        text_rect = text.get_rect()
-        text_rect.center = (400, 500)
-        screen.blit(text, text_rect)
+        print_text(printing_str, 400, 500, color, font)
 
     def terminate(self, color=color_black) -> bool:
         for transition in self.transitions:
             if transition.is_active():
                 return False
-        text = font.render(
-            "This Petri Net has reached its terminal marking!", True, color)
-        text_rect = text.get_rect()
-        text_rect.center = (400, 540)
-        screen.blit(text, text_rect)
+        print_text("This Petri Net has reached its terminal marking!",
+                   400, 540, color, font)
         return True
+    
+    def reset(self):
+        self.transitions = []
+        self.places = []
 
 
 def make_edges(*args) -> list:
@@ -400,29 +461,25 @@ def make_edges(*args) -> list:
     return res
 
 def draw_exercise1(color=color_black) -> None:
-    util_text = font.render(
-        "Start: S  Change: C  Undo: U", True, color, (224, 92, 92))
-    screen.blit(util_text, (10, 10))
     draw_arrow((75, 300), (200, 300), (195, 295), (195, 305))
     draw_arrow((240, 300), (375, 300), (370, 295), (370, 305))
     draw_arrow((425, 300), (570, 300), (565, 295), (565, 305))
     draw_arrow((610, 300), (725, 300), (720, 295), (720, 305))
+    print_text("Start: S  Change: C  Undo: U  Back: Esc", 400, 570, color, tiny_font)
+    print_text('ITEM 1', 400, 50, color_red, title_font)
 
 def draw_exercise2(color=color_black) -> None:
-    util_text = font.render(
-        "Start: S  Change: C  End: E  Undo: U", True, color, (224, 92, 92))
-    screen.blit(util_text, (10, 10))
     draw_arrow((200, 225), (200, 380), (195, 375), (205, 375))
     draw_arrow((600, 380), (600, 225), (595, 230), (605, 230))
     draw_arrow((220, 400), (375, 400), (370, 395), (370, 405))
     draw_arrow((423, 400), (580, 400), (575, 395), (575, 405))
     draw_arrow((380, 200), (225, 200), (230, 205), (230, 195))
     draw_arrow((575, 200), (420, 200), (425, 205), (425, 195))
+    print_text("Start: S  Change: C  End: E  Undo: U  Back: Esc",
+               400, 570, color, tiny_font)
+    print_text('ITEM 2', 400, 50, color_red, title_font)
 
 def draw_exercise3(color=color_black) -> None:
-    util_text = font.render(
-        "Start: S  Change: C  End: E  Undo: U", True, color, (224, 92, 92))
-    screen.blit(util_text, (10, 10))
     draw_arrow((380, 150), (245, 150), (250, 155), (250, 145))
     draw_arrow((555, 150), (420, 150), (425, 155), (425, 145))
     draw_arrow((220, 175), (220, 280), (225, 275), (215, 275))
@@ -433,8 +490,12 @@ def draw_exercise3(color=color_black) -> None:
     draw_arrow((600, 300), (675, 300), (670, 305), (670, 295))
     draw_arrow((240, 320), (382, 412), (376, 412), (380, 407))
     draw_arrow((418, 412), (560, 320), (555, 319), (559, 326))
+    print_text("Start: S  Change: C  End: E  Undo: U  Back: Esc",
+               400, 570, color, tiny_font)
+    print_text('ITEM 3', 400, 50, color_red, title_font)
 
 def exercise1(petri_net: PetriNet, input_wait: int, input_inside: int, input_done: int) -> None:
+    petri_net.reset()
     firing_sequence = []
     wait = Place(input_wait, "wait")
     inside = Place(input_inside, "inside")
@@ -445,6 +506,8 @@ def exercise1(petri_net: PetriNet, input_wait: int, input_inside: int, input_don
     petri_net.add_transitions(start, change)
     edges = make_edges(wait, start, start, inside,
                        inside, change, change, done)
+    showing_menu = False
+    flag_continue = False
     running = True
     while running:
         screen.fill(background_main)
@@ -457,23 +520,23 @@ def exercise1(petri_net: PetriNet, input_wait: int, input_inside: int, input_don
         petri_net.show_marking()
         if petri_net.terminate():
             pass
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
+        for  _event in event.get():
+            if  _event.type == QUIT:
                 running = False
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_s:
+            elif  _event.type == KEYDOWN:
+                if  _event.key == K_s:
                     if start.is_active():
                         start.fire()
                         print('start')
                         firing_sequence.append(start)
                         start.draw(start.posX, start.posY, color_green)
-                elif event.key == pg.K_c:
+                elif  _event.key == K_c:
                     if change.is_active():
                         change.fire()
                         print('change')
                         firing_sequence.append(change)
                         change.draw(change.posX, start.posY, color_green)
-                elif event.key == pg.K_u:
+                elif  _event.key == K_u:
                     if len(firing_sequence) > 0:
                         removed: Transition
                         removed = firing_sequence.pop()
@@ -481,13 +544,18 @@ def exercise1(petri_net: PetriNet, input_wait: int, input_inside: int, input_don
                         print("Undo: " + removed.name)
                         removed.draw(removed.posX, removed.posY,
                                      color_red, removed.label_position)
-
-            elif event.type == pg.KEYUP:
+                if _event.key == K_ESCAPE:
+                    running = False
+                    showing_menu = True
+                    flag_continue = True
+            elif  _event.type == KEYUP:
                 pass
-        pg.display.update()
-        pg.time.delay(100)
+        display.update()
+        time.delay(100)
+    return flag_continue, showing_menu
 
 def exercise2(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int) -> None:
+    petri_net.reset()
     firing_sequence = []
     start = Transition("start")
     change = Transition("change")
@@ -499,6 +567,8 @@ def exercise2(petri_net: PetriNet, input_free: int, input_busy: int, input_docu:
     petri_net.add_transitions(start, change, end)
     edges = make_edges(start, busy, busy, change, change,
                        docu, docu, end, end, free, free, start)
+    showing_menu = False
+    flag_continue = False
     running = True
     while running:
         screen.fill(background_main)
@@ -512,29 +582,29 @@ def exercise2(petri_net: PetriNet, input_free: int, input_busy: int, input_docu:
         petri_net.show_marking()
         if petri_net.terminate():
             pass
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
+        for  _event in event.get():
+            if  _event.type == QUIT:
                 running = False
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_s:
+            elif  _event.type == KEYDOWN:
+                if  _event.key == K_s:
                     if start.is_active():
                         start.fire()
                         print('start')
                         firing_sequence.append(start)
                         start.draw(start.posX, start.posY, color_green)
-                elif event.key == pg.K_c:
+                elif  _event.key == K_c:
                     if change.is_active():
                         change.fire()
                         print('change')
                         firing_sequence.append(change)
                         change.draw(change.posX, start.posY, color_green)
-                elif event.key == pg.K_e:
+                elif  _event.key == K_e:
                     if end.is_active():
                         end.fire()
                         print('end')
                         firing_sequence.append(end)
                         end.draw(end.posX, end.posY, color_green, 'U')
-                elif event.key == pg.K_u:
+                elif  _event.key == K_u:
                     if len(firing_sequence) > 0:
                         removed: Transition
                         removed = firing_sequence.pop()
@@ -542,12 +612,18 @@ def exercise2(petri_net: PetriNet, input_free: int, input_busy: int, input_docu:
                         print("Undo: " + removed.name)
                         removed.draw(removed.posX, removed.posY,
                                      color_red, removed.label_position)
-            elif event.type == pg.KEYUP:
+                if _event.key == K_ESCAPE:
+                    running = False
+                    showing_menu = True
+                    flag_continue = True
+            elif  _event.type == KEYUP:
                 pass
-        pg.display.update()
-        pg.time.delay(100)
+        display.update()
+        time.delay(100)
+    return flag_continue, showing_menu
 
 def exercise3(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int, input_wait: int, input_inside: int, input_done: int) -> None:
+    petri_net.reset()
     firing_sequence = []
     start = Transition("start")
     change = Transition("change")
@@ -578,29 +654,29 @@ def exercise3(petri_net: PetriNet, input_free: int, input_busy: int, input_docu:
         petri_net.show_marking()
         if petri_net.terminate():
             pass
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
+        for  _event in event.get():
+            if  _event.type == QUIT:
                 running = False
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_s:
+            elif  _event.type == KEYDOWN:
+                if  _event.key == K_s:
                     if start.is_active():
                         start.fire()
                         print('start')
                         firing_sequence.append(start)
                         start.draw(start.posX, start.posY, color_green)
-                elif event.key == pg.K_c:
+                elif  _event.key == K_c:
                     if change.is_active():
                         change.fire()
                         print('change')
                         firing_sequence.append(change)
                         change.draw(change.posX, start.posY, color_green)
-                elif event.key == pg.K_e:
+                elif  _event.key == K_e:
                     if end.is_active():
                         end.fire()
                         print('end')
                         firing_sequence.append(end)
                         end.draw(end.posX, end.posY, color_green, 'U')
-                elif event.key == pg.K_u:
+                elif  _event.key == K_u:
                     if len(firing_sequence) > 0:
                         removed: Transition
                         removed = firing_sequence.pop()
@@ -608,10 +684,15 @@ def exercise3(petri_net: PetriNet, input_free: int, input_busy: int, input_docu:
                         print("Undo: " + removed.name)
                         removed.draw(removed.posX, removed.posY,
                                      color_red, removed.label_position)
-            elif event.type == pg.KEYUP:
+                if _event.key == K_ESCAPE:
+                    running = False
+                    showing_menu = True
+                    flag_continue = True
+            elif  _event.type == KEYUP:
                 pass
-        pg.display.update()
-        pg.time.delay(100)
+        display.update()
+        time.delay(100)
+    return flag_continue, showing_menu
 
 def exercise4(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int, input_wait: int, input_inside: int, input_done: int) -> None:
     pass
@@ -635,23 +716,55 @@ def exercise4(petri_net: PetriNet, input_free: int, input_busy: int, input_docu:
 
 if __name__ == "__main__":
     petri_net = PetriNet()
-    exercise_index, flag_continue = show_menu()
-    if flag_continue:
-        flag_continue = False
-        if exercise_index == 0:
-            user_input, flag_continue = input_promt1()
-            if flag_continue:
-                exercise1(petri_net, user_input[0],
-                          user_input[1], user_input[2])
-        elif exercise_index == 1:
-            user_input, flag_continue = input_promt2()
-            if flag_continue:
-                exercise2(petri_net, user_input[0],
-                          user_input[1], user_input[2])
-        elif exercise_index == 2:
-            user_input, flag_continue = input_promt3()
-            if flag_continue:
-                exercise3(petri_net, user_input[0],
+    showing_menu = True
+    flag_continue = True
+    prompt_to_menu = True
+    while showing_menu:
+        showing_menu = False
+        while flag_continue:
+            flag_continue = False
+            if prompt_to_menu:
+                exercise_index, flag_continue = show_menu()
+                if not flag_continue:
+                    break
+            if exercise_index == 0:
+                if prompt_to_menu:
+                    user_input, flag_continue, showing_menu = input_promt1()
+                else:
+                    flag_continue = True
+                if flag_continue and not showing_menu:
+                    flag_continue, showing_menu = exercise1(petri_net, user_input[0],
+                            user_input[1], user_input[2])
+                    if flag_continue and showing_menu:
+                        user_input, flag_continue, showing_menu = input_promt1()
+                        prompt_to_menu = showing_menu
+                elif flag_continue and showing_menu:
+                    continue
+            elif exercise_index == 1:
+                if prompt_to_menu:
+                    user_input, flag_continue, showing_menu = input_promt2()
+                else:
+                    flag_continue = True
+                if flag_continue and not showing_menu:
+                    flag_continue, showing_menu = exercise2(petri_net, user_input[0],
+                            user_input[1], user_input[2])
+                    if flag_continue and showing_menu:
+                        user_input, flag_continue, showing_menu = input_promt2()
+                        prompt_to_menu = showing_menu
+                elif flag_continue and showing_menu:
+                    continue
+            elif exercise_index == 2:
+                if prompt_to_menu:
+                    user_input, flag_continue, showing_menu = input_promt3()
+                else:
+                    flag_continue = True
+                if flag_continue and not showing_menu:
+                    flag_continue, showing_menu = exercise3(petri_net, user_input[0],
                           user_input[1], user_input[2], user_input[3], user_input[4], user_input[5])
-        elif exercise_index == 3:
-            exercise3(petri_net, 1, 0, 0, 3, 0, 0)
+                    if flag_continue and showing_menu:
+                        user_input, flag_continue, showing_menu = input_promt3()
+                        prompt_to_menu = showing_menu
+                elif flag_continue and showing_menu:
+                    continue
+            elif exercise_index == 3:
+                exercise3(petri_net, 1, 0, 0, 3, 0, 0)
