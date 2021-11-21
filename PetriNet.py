@@ -68,7 +68,7 @@ def show_menu():
     run = True
     flag_continue = False
     current_pos = 900
-    speed = 0.75            # The speed of the moving text box at the start
+    speed = 1            # The speed of the moving text box at the start
     while run:
         current_pos -= speed
         screen.fill(background_main)
@@ -76,12 +76,12 @@ def show_menu():
         if item_index == 0:             # If a specific text box is chosen then change its color
             draw_choice_box(color_black, color_yellow,
                             '  Simulate Item 1  ', 150)
-            print_text_box('Simulate the Petri Net of Item 1: Patient Network',
+            print_text_box('Simulate the Petri Net of Item 1: Specialist Network',
                            400, 500, color_black, tiny_font)
         elif item_index == 1:
             draw_choice_box(color_black, color_yellow,
                             '  Simulate Item 2  ', 210)
-            print_text_box('Simulate the Petri Net of Item 2: Specialist Network',
+            print_text_box('Simulate the Petri Net of Item 2: Patient Network',
                            400, 500, color_black, tiny_font)
         elif item_index == 2:
             draw_choice_box(color_black, color_yellow,
@@ -119,8 +119,8 @@ def show_menu():
     return item_index, flag_continue
 
 
-def input_prompt1():
-    # Handling user input for item 1
+def input_prompt2():
+    # Handling user input for item 2
     user_input = ["", "", ""]                           # Storing user inputs
     # Boolean variables to keep the game running
     flag_continue = False
@@ -158,7 +158,7 @@ def input_prompt1():
                         else:
                             temp = _event.unicode               # If it is not 'Backspace'
                             # Only accept number keys
-                            if not (len(user_input[i]) == 0 and temp == '0') and (temp <= '9' and temp >= '0'):
+                            if not (len(user_input[i]) == 0 and temp == '0') and ('0' <= temp <= '9'):
                                 if len(user_input[i]) >= 1:
                                     # Make the input smaller or equal to 10
                                     user_input[i] = '10'
@@ -180,11 +180,11 @@ def input_prompt1():
         screen.fill(background_main)
         print_text('wait', color_black, 150, 200, font)
         print_text('inside', color_black, 335, 200, font)
-        print_text('done', color_black, 550, 200, font)
+        print_text('done', color_black, 545, 200, font)
         print_text_box('Enter the initial number of tokens in each place',
-                       400, 110, color_black, font)
-        print_text_box('Item 1: Patient Network', 400,
-                       50, color_black, title_font)
+                       400, 140, color_black, font)
+        print_text_box('Item 2: Patient Network', 400,
+                       30, color_black, title_font)
         print_text_box('Delete: Backspace  Confirm: Spacebar  Back: Esc',
                        400, 545, color_black, tiny_font)
         print_text_box('Click on a box to enter the required number',
@@ -207,8 +207,8 @@ def input_prompt1():
     return user_input, flag_continue, showing_menu
 
 
-def input_prompt2():
-    # Handling user input for item 2
+def input_prompt1():
+    # Handling user input for item 1
     user_input = ["", "", ""]
     flag_continue = False
     showing_menu = False
@@ -238,7 +238,7 @@ def input_prompt2():
                             user_input[i] = user_input[i][:-1]
                         else:
                             temp = _event.unicode
-                            if not (len(user_input[i]) == 0 and temp == '0') and (temp <= '9' and temp >= '0'):
+                            if not (len(user_input[i]) == 0 and temp == '0') and ('0' <= temp <= '9'):
                                 if len(user_input[i]) >= 1:
                                     user_input[i] = '10'
                                 else:
@@ -254,12 +254,12 @@ def input_prompt2():
                 pass
         screen.fill(background_main)
         print_text('free', color_black, 150, 200, font)
-        print_text('busy', color_black, 350, 200, font)
-        print_text('docu', color_black, 550, 200, font)
+        print_text('busy', color_black, 345, 200, font)
+        print_text('docu', color_black, 545, 200, font)
         print_text_box('Enter the initial number of tokens in each place',
-                       400, 110, color_black, font)
-        print_text_box('Item 2: Specialist Network',
-                       400, 50, color_black, title_font)
+                       400, 140, color_black, font)
+        print_text_box('Item 1: Specialist Network',
+                       400, 30, color_black, title_font)
         print_text_box('Delete: Backspace  Confirm: Spacebar  Back: Esc',
                        400, 545, color_black, tiny_font)
         print_text_box('Click on a box to enter the required number',
@@ -331,14 +331,14 @@ def input_prompt3():
         screen.fill(background_main)
         print_text('free', color_black, 150, 200, font)
         print_text('busy', color_black, 335, 200, font)
-        print_text('docu', color_black, 550, 200, font)
+        print_text('docu', color_black, 545, 200, font)
         print_text('wait', color_black, 150, 400, font)
         print_text('inside', color_black, 335, 400, font)
-        print_text('done', color_black, 550, 400, font)
+        print_text('done', color_black, 545, 400, font)
         print_text_box('Enter the initial number of tokens in each place',
-                       400, 110, color_black, font)
+                       400, 140, color_black, font)
         print_text_box('Item 3: Superimposed Network',
-                       400, 50, color_black, title_font)
+                       400, 30, color_black, title_font)
         print_text_box('Delete: Backspace  Confirm: Spacebar  Back: Esc',
                        400, 545, color_black, tiny_font)
         print_text_box('Click on a box to enter the required number',
@@ -545,18 +545,6 @@ def make_edges(*args) -> list:
 
 def draw_item1(color=color_black) -> None:
     # Draw stuff for item 1
-    draw_arrow((75, 300), (200, 300), (195, 295), (195, 305))
-    draw_arrow((240, 300), (375, 300), (370, 295), (370, 305))
-    draw_arrow((425, 300), (570, 300), (565, 295), (565, 305))
-    draw_arrow((610, 300), (725, 300), (720, 295), (720, 305))
-    print_text_box("Start: S  Change: C  Undo: U  Back: Esc  Reset: R  Print firing sequence: F",
-                   400, 570, color, tiny_font)
-    print_text_box('Item 1: Patient Network', 400, 50, color_black, title_font)
-    print_text_box('View your actions as you interact with this Petri Net on the console window.', 400, 80, color_black, tiny_font)
-
-
-def draw_item2(color=color_black) -> None:
-    # Draw stuff for item 2
     draw_arrow((200, 225), (200, 380), (195, 375), (205, 375))
     draw_arrow((600, 380), (600, 225), (595, 230), (605, 230))
     draw_arrow((220, 400), (375, 400), (370, 395), (370, 405))
@@ -565,9 +553,21 @@ def draw_item2(color=color_black) -> None:
     draw_arrow((575, 200), (420, 200), (425, 205), (425, 195))
     print_text_box("Start: S  Change: C  End: E  Undo: U  Back: Esc  Reset: R  Print firing sequence: F",
                    400, 570, color, tiny_font)
-    print_text_box('Item 2: Specialist Network',
-                   400, 50, color_black, title_font)
-    print_text_box('View your actions as you interact with this Petri Net on the console window.', 400, 80, color_black, tiny_font)
+    print_text_box('Item 1: Specialist Network',
+                   400, 30, color_black, title_font)
+    print_text_box('View your actions as you interact with this Petri Net on the console window.', 400, 60, color_black, tiny_font)
+
+
+def draw_item2(color=color_black) -> None:
+    # Draw stuff for item 2
+    draw_arrow((75, 300), (200, 300), (195, 295), (195, 305))
+    draw_arrow((240, 300), (375, 300), (370, 295), (370, 305))
+    draw_arrow((425, 300), (570, 300), (565, 295), (565, 305))
+    draw_arrow((610, 300), (725, 300), (720, 295), (720, 305))
+    print_text_box("Start: S  Change: C  Undo: U  Back: Esc  Reset: R  Print firing sequence: F",
+                   400, 570, color, tiny_font)
+    print_text_box('Item 2: Patient Network', 400, 30, color_black, title_font)
+    print_text_box('View your actions as you interact with this Petri Net on the console window.', 400, 60, color_black, tiny_font)
 
 
 def draw_item3(color=color_black) -> None:
@@ -585,8 +585,8 @@ def draw_item3(color=color_black) -> None:
     print_text_box("Start: S  Change: C  End: E  Undo: U  Back: Esc  Reset: R  Print firing sequence: F",
                    400, 570, color, tiny_font)
     print_text_box('Item 3: Superimposed Network',
-                   400, 50, color_black, title_font)
-    print_text_box('View your actions as you interact with this Petri Net on the console window.', 400, 80, color_black, tiny_font)
+                   400, 30, color_black, title_font)
+    print_text_box('View your actions as you interact with this Petri Net on the console window.', 400, 60, color_black, tiny_font)
 
 
 def draw_item4(color=color_black) -> None:
@@ -604,13 +604,98 @@ def draw_item4(color=color_black) -> None:
     print_text_box("Start: S  Change: C  End: E  Undo: U  Back: Esc  Reset: R  Print firing sequence: F",
                    400, 570, color, tiny_font)
     print_text_box('Item 4: Reachable Marking',
-                   400, 50, color_black, title_font)
+                   400, 30, color_black, title_font)
     print_text_box('See explanation for item 4 on the console window.',
-                   400, 80, color_black, tiny_font)
+                   400, 60, color_black, tiny_font)
 
 
-def item1(petri_net: PetriNet, input_wait: int, input_inside: int, input_done: int):
-    # Simulate item 1
+def item1(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int):
+    petri_net.reset()
+    firing_sequence = []
+    start = Transition("start")
+    change = Transition("change")
+    end = Transition("end")
+    free = Place(input_free, "free")
+    busy = Place(input_busy, "busy")
+    docu = Place(input_docu, "docu")
+    petri_net.add_places(free, busy, docu)
+    petri_net.add_transitions(start, change, end)
+    edges = make_edges(start, busy, busy, change, change,
+                       docu, docu, end, end, free, free, start)
+    showing_menu_private = False
+    flag_continue_private = False
+    running = True
+    while running:
+        screen.fill(background_main)
+        draw_item1()
+        free.draw(200, 200, color_black, 'U')
+        busy.draw(400, 400)
+        docu.draw(600, 200, color_black, 'U')
+        start.draw(180, 380)
+        change.draw(580, 380)
+        end.draw(380, 180, color_black, 'U')
+        petri_net.show_marking()
+        if petri_net.terminate():
+            pass
+        for _event in event.get():
+            if _event.type == QUIT:
+                running = False
+            elif _event.type == KEYDOWN:
+                if _event.key == K_s:
+                    if start.is_enabled():
+                        start.fire()
+                        print('start')
+                        firing_sequence.append(start)
+                        start.draw(start.posX, start.posY, color_green)
+                elif _event.key == K_c:
+                    if change.is_enabled():
+                        change.fire()
+                        print('change')
+                        firing_sequence.append(change)
+                        change.draw(change.posX, start.posY, color_green)
+                elif _event.key == K_e:
+                    if end.is_enabled():
+                        end.fire()
+                        print('end')
+                        firing_sequence.append(end)
+                        end.draw(end.posX, end.posY, color_green, 'U')
+                elif _event.key == K_u:
+                    if len(firing_sequence) > 0:
+                        removed: Transition
+                        removed = firing_sequence.pop()
+                        removed.undo_fire()
+                        print("Undo: " + removed.name)
+                        removed.draw(removed.posX, removed.posY,
+                                     color_red, removed.label_position)
+                        removed.delete()
+                elif _event.key == K_ESCAPE:
+                    running = False
+                    showing_menu_private = True
+                    flag_continue_private = True
+                    for trans in firing_sequence:
+                        trans.delete()
+                    firing_sequence = []
+                elif _event.key == K_r:
+                    print("Reset Petri Net")
+                    free.holding = input_free
+                    busy.holding = input_busy
+                    docu.holding = input_docu
+                    for trans in firing_sequence:
+                        trans.delete()
+                    firing_sequence = []
+                elif _event.key == K_f:
+                    if len(firing_sequence) == 0:
+                        continue
+                    print_firing_sequence(firing_sequence)
+            elif _event.type == KEYUP:
+                pass
+        display.update()
+        time.delay(100)
+    return flag_continue_private, showing_menu_private
+
+
+def item2(petri_net: PetriNet, input_wait: int, input_inside: int, input_done: int):
+    # Simulate item 2
     petri_net.reset()
     firing_sequence = []        # List of transitions fired so far i.e. firing sequence
     # Create places and transitions
@@ -632,7 +717,7 @@ def item1(petri_net: PetriNet, input_wait: int, input_inside: int, input_done: i
     while running:
         # Draw stuff needed
         screen.fill(background_main)
-        draw_item1()
+        draw_item2()
         wait.draw(50, 300)
         start.draw(200, 280)
         inside.draw(400, 300)
@@ -696,91 +781,6 @@ def item1(petri_net: PetriNet, input_wait: int, input_inside: int, input_done: i
         # Update the game window with every action
         display.update()
         # Delay 100ms so that the blinking can be visible to the human eye
-        time.delay(100)
-    return flag_continue_private, showing_menu_private
-
-
-def item2(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int):
-    petri_net.reset()
-    firing_sequence = []
-    start = Transition("start")
-    change = Transition("change")
-    end = Transition("end")
-    free = Place(input_free, "free")
-    busy = Place(input_busy, "busy")
-    docu = Place(input_docu, "docu")
-    petri_net.add_places(free, busy, docu)
-    petri_net.add_transitions(start, change, end)
-    edges = make_edges(start, busy, busy, change, change,
-                       docu, docu, end, end, free, free, start)
-    showing_menu_private = False
-    flag_continue_private = False
-    running = True
-    while running:
-        screen.fill(background_main)
-        draw_item2()
-        free.draw(200, 200, color_black, 'U')
-        busy.draw(400, 400)
-        docu.draw(600, 200, color_black, 'U')
-        start.draw(180, 380)
-        change.draw(580, 380)
-        end.draw(380, 180, color_black, 'U')
-        petri_net.show_marking()
-        if petri_net.terminate():
-            pass
-        for _event in event.get():
-            if _event.type == QUIT:
-                running = False
-            elif _event.type == KEYDOWN:
-                if _event.key == K_s:
-                    if start.is_enabled():
-                        start.fire()
-                        print('start')
-                        firing_sequence.append(start)
-                        start.draw(start.posX, start.posY, color_green)
-                elif _event.key == K_c:
-                    if change.is_enabled():
-                        change.fire()
-                        print('change')
-                        firing_sequence.append(change)
-                        change.draw(change.posX, start.posY, color_green)
-                elif _event.key == K_e:
-                    if end.is_enabled():
-                        end.fire()
-                        print('end')
-                        firing_sequence.append(end)
-                        end.draw(end.posX, end.posY, color_green, 'U')
-                elif _event.key == K_u:
-                    if len(firing_sequence) > 0:
-                        removed: Transition
-                        removed = firing_sequence.pop()
-                        removed.undo_fire()
-                        print("Undo: " + removed.name)
-                        removed.draw(removed.posX, removed.posY,
-                                     color_red, removed.label_position)
-                        removed.delete()
-                elif _event.key == K_ESCAPE:
-                    running = False
-                    showing_menu_private = True
-                    flag_continue_private = True
-                    for trans in firing_sequence:
-                        trans.delete()
-                    firing_sequence = []
-                elif _event.key == K_r:
-                    print("Reset Petri Net")
-                    free.holding = input_free
-                    busy.holding = input_busy
-                    docu.holding = input_docu
-                    for trans in firing_sequence:
-                        trans.delete()
-                    firing_sequence = []
-                elif _event.key == K_f:
-                    if len(firing_sequence) == 0:
-                        continue
-                    print_firing_sequence(firing_sequence)
-            elif _event.type == KEYUP:
-                pass
-        display.update()
         time.delay(100)
     return flag_continue_private, showing_menu_private
 
@@ -1037,4 +1037,9 @@ if __name__ == "__main__":
                 elif flag_continue and showing_menu:
                     continue
             elif item_index == 3:
-                item4(petri_net, 1, 0, 0, 3, 0, 0)
+                showing_menu = False
+                if flag_continue and not showing_menu:
+                    flag_continue, showing_menu = item4(petri_net, 1, 0, 0, 3, 0, 0)
+                    prompt_to_menu = showing_menu
+                elif flag_continue and showing_menu:
+                    continue
