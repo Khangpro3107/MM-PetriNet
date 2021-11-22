@@ -610,22 +610,29 @@ def draw_item4(color=color_black) -> None:
 
 
 def item1(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int):
+    # Simulate item 1
     petri_net.reset()
-    firing_sequence = []
+    firing_sequence = []        # List of transitions fired so far i.e. firing sequence
+    # Create places and transitions
     start = Transition("start")
     change = Transition("change")
     end = Transition("end")
     free = Place(input_free, "free")
     busy = Place(input_busy, "busy")
     docu = Place(input_docu, "docu")
+    # Add places and transitions to the Petri Net
     petri_net.add_places(free, busy, docu)
     petri_net.add_transitions(start, change, end)
+    # Connect places and transitions using edges
     edges = make_edges(start, busy, busy, change, change,
                        docu, docu, end, end, free, free, start)
+    # Boolean variables to keep the game window running as expected
     showing_menu_private = False
     flag_continue_private = False
     running = True
+    # The main loop which handles the game running
     while running:
+        # Draw stuff needed
         screen.fill(background_main)
         draw_item1()
         free.draw(200, 200, color_black, 'U')
@@ -634,6 +641,96 @@ def item1(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int
         start.draw(180, 380)
         change.draw(580, 380)
         end.draw(380, 180, color_black, 'U')
+        petri_net.show_marking()
+        if petri_net.terminate():
+            pass
+        # Receive key stroke events
+        for _event in event.get():
+            if _event.type == QUIT:
+                running = False
+            elif _event.type == KEYDOWN:
+                if _event.key == K_s:                       # 's' is pressed -> Fire 'start'
+                    if start.is_enabled():
+                        start.fire()
+                        print('start')
+                        # Add it to the firing sequence
+                        firing_sequence.append(start)
+                        # Make it blink green
+                        start.draw(start.posX, start.posY, color_green)
+                elif _event.key == K_c:                     # 'c' is pressed -> Fire 'change'
+                    if change.is_enabled():
+                        change.fire()
+                        print('change')
+                        firing_sequence.append(change)
+                        change.draw(change.posX, start.posY, color_green)
+                elif _event.key == K_e:                     # 'e' is pressed -> Fire 'end'
+                    if end.is_enabled():
+                        end.fire()
+                        print('end')
+                        firing_sequence.append(end)
+                        end.draw(end.posX, end.posY, color_green, 'U')
+                elif _event.key == K_u:                     # 'u' is pressed -> Undo the last firing action
+                    if len(firing_sequence) > 0:            # Undo only if firing sequence is not empty
+                        removed: Transition
+                        # Take the last transition out of the firing sequence
+                        removed = firing_sequence.pop()
+                        removed.undo_fire()
+                        print("Undo: " + removed.name)
+                        removed.draw(removed.posX, removed.posY,
+                                     color_red, removed.label_position)         # Make it blink red
+                        removed.delete()
+                        del removed
+                elif _event.key == K_ESCAPE:                # 'Esc' is pressed -> Go back to the last screen
+                    running = False
+                    showing_menu_private = True
+                    flag_continue_private = True
+                    for trans in firing_sequence:
+                        trans.delete()
+                    firing_sequence = []
+                elif _event.key == K_r:                     # 'r' is pressed -> Reset the Petri Net to the initial marking
+                    print("Reset Petri Net")
+                    free.holding = input_free
+                    busy.holding = input_busy
+                    docu.holding = input_docu
+                    for trans in firing_sequence:
+                        trans.delete()
+                    firing_sequence = []                    # Firing sequence is also reset
+                elif _event.key == K_f:                     # 'f' is pressed -> print firing sequence to console
+                    if len(firing_sequence) == 0:
+                        continue
+                    print_firing_sequence(firing_sequence)
+            elif _event.type == KEYUP:
+                pass
+        # Update the game window after every change
+        display.update()
+        # Delay 50ms so that the blinking can be visible to the human eye
+        time.delay(50)
+    return flag_continue_private, showing_menu_private
+
+
+def item2(petri_net: PetriNet, input_wait: int, input_inside: int, input_done: int):
+    petri_net.reset()
+    firing_sequence = []
+    wait = Place(input_wait, "wait")
+    inside = Place(input_inside, "inside")
+    done = Place(input_done, "done")
+    start = Transition("start")
+    change = Transition("change")
+    petri_net.add_places(wait, inside, done)
+    petri_net.add_transitions(start, change)
+    edges = make_edges(wait, start, start, inside,
+                       inside, change, change, done)
+    showing_menu_private = False
+    flag_continue_private = False
+    running = True
+    while running:
+        screen.fill(background_main)
+        draw_item2()
+        wait.draw(50, 300)
+        start.draw(200, 280)
+        inside.draw(400, 300)
+        change.draw(570, 280)
+        done.draw(750, 300)
         petri_net.show_marking()
         if petri_net.terminate():
             pass
@@ -653,12 +750,6 @@ def item1(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int
                         print('change')
                         firing_sequence.append(change)
                         change.draw(change.posX, start.posY, color_green)
-                elif _event.key == K_e:
-                    if end.is_enabled():
-                        end.fire()
-                        print('end')
-                        firing_sequence.append(end)
-                        end.draw(end.posX, end.posY, color_green, 'U')
                 elif _event.key == K_u:
                     if len(firing_sequence) > 0:
                         removed: Transition
@@ -668,6 +759,7 @@ def item1(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int
                         removed.draw(removed.posX, removed.posY,
                                      color_red, removed.label_position)
                         removed.delete()
+                        del removed
                 elif _event.key == K_ESCAPE:
                     running = False
                     showing_menu_private = True
@@ -677,9 +769,9 @@ def item1(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int
                     firing_sequence = []
                 elif _event.key == K_r:
                     print("Reset Petri Net")
-                    free.holding = input_free
-                    busy.holding = input_busy
-                    docu.holding = input_docu
+                    wait.holding = input_wait
+                    inside.holding = input_inside
+                    done.holding = input_done
                     for trans in firing_sequence:
                         trans.delete()
                     firing_sequence = []
@@ -690,98 +782,7 @@ def item1(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int
             elif _event.type == KEYUP:
                 pass
         display.update()
-        time.delay(100)
-    return flag_continue_private, showing_menu_private
-
-
-def item2(petri_net: PetriNet, input_wait: int, input_inside: int, input_done: int):
-    # Simulate item 2
-    petri_net.reset()
-    firing_sequence = []        # List of transitions fired so far i.e. firing sequence
-    # Create places and transitions
-    wait = Place(input_wait, "wait")
-    inside = Place(input_inside, "inside")
-    done = Place(input_done, "done")
-    start = Transition("start")
-    change = Transition("change")
-    # Add places and transitions to the Petri Net
-    petri_net.add_places(wait, inside, done)
-    petri_net.add_transitions(start, change)
-    edges = make_edges(wait, start, start, inside,
-                       inside, change, change, done)
-    # Boolean variables to keep the game window running as expected
-    showing_menu_private = False
-    flag_continue_private = False
-    running = True
-    # The main loop which handles the game running
-    while running:
-        # Draw stuff needed
-        screen.fill(background_main)
-        draw_item2()
-        wait.draw(50, 300)
-        start.draw(200, 280)
-        inside.draw(400, 300)
-        change.draw(570, 280)
-        done.draw(750, 300)
-        petri_net.show_marking()
-        if petri_net.terminate():
-            pass
-        # Receive key strokes event
-        for _event in event.get():
-            if _event.type == QUIT:
-                running = False
-            elif _event.type == KEYDOWN:
-                if _event.key == K_s:                   # 's' is pressed -> Fire 'start'
-                    if start.is_enabled():
-                        start.fire()
-                        print('start')
-                        # Add it to the firing sequence
-                        firing_sequence.append(start)
-                        # Make it blink green
-                        start.draw(start.posX, start.posY, color_green)
-                elif _event.key == K_c:                   # 'c' is pressed -> Fire 'change'
-                    if change.is_enabled():
-                        change.fire()
-                        print('change')
-                        # Add it to the firing sequence
-                        firing_sequence.append(change)
-                        # Make it blink green
-                        change.draw(change.posX, start.posY, color_green)
-                elif _event.key == K_u:                  # 'u' is pressed -> Undo the last firing action
-                    if len(firing_sequence) > 0:         # Undo only if firing sequence is not empty
-                        removed: Transition
-                        # Take the last transition out of the firing sequence
-                        removed = firing_sequence.pop()
-                        removed.undo_fire()
-                        print("Undo: " + removed.name)
-                        removed.draw(removed.posX, removed.posY,
-                                     color_red, removed.label_position)     # Make it blink red
-                        removed.delete()
-                elif _event.key == K_ESCAPE:             # 'Esc' is pressed -> Go back to the last screen
-                    running = False
-                    showing_menu_private = True
-                    flag_continue_private = True
-                    for trans in firing_sequence:
-                        trans.delete()
-                    firing_sequence = []
-                elif _event.key == K_r:                  # 'r' is pressed -> Reset the Petri Net to the initial user input
-                    print("Reset Petri Net")
-                    wait.holding = input_wait
-                    inside.holding = input_inside
-                    done.holding = input_done
-                    for trans in firing_sequence:
-                        trans.delete()
-                    firing_sequence = []                 # Firing sequence is also reset
-                elif _event.key == K_f:                  # 'f' is pressed -> print firing sequence to console
-                    if len(firing_sequence) == 0:
-                        continue
-                    print_firing_sequence(firing_sequence)
-            elif _event.type == KEYUP:
-                pass
-        # Update the game window with every action
-        display.update()
-        # Delay 100ms so that the blinking can be visible to the human eye
-        time.delay(100)
+        time.delay(50)
     return flag_continue_private, showing_menu_private
 
 
@@ -850,6 +851,7 @@ def item3(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int
                         removed.draw(removed.posX, removed.posY,
                                      color_red, removed.label_position)
                         removed.delete()
+                        del removed
                 elif _event.key == K_ESCAPE:
                     running = False
                     showing_menu_private = True
@@ -951,6 +953,7 @@ def item4(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int
                         removed.draw(removed.posX, removed.posY,
                                      color_red, removed.label_position)
                         removed.delete()
+                        del removed
                 elif _event.key == K_ESCAPE:
                     running = False
                     showing_menu_private = True
@@ -976,7 +979,7 @@ def item4(petri_net: PetriNet, input_free: int, input_busy: int, input_docu: int
             elif _event.type == KEYUP:
                 pass
         display.update()
-        time.delay(100)
+        time.delay(50)
     return flag_continue_private, showing_menu_private
 
 
