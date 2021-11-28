@@ -119,6 +119,81 @@ def show_menu():
     return item_index, flag_continue
 
 
+def input_prompt1():
+    # Handling user input for item 1
+    user_input = ["", "", ""]
+    flag_continue = False
+    showing_menu = False
+    input_rect = [Rect(200, 200, 80, 24), Rect(
+        400, 200, 80, 24), Rect(600, 200, 80, 24)]
+    color_active = Color(color_yellow)
+    color_passive = Color(color_white)
+    color = [color_passive, color_passive, color_passive]
+    active = [False, False, False]
+    running = True
+    while running:
+        for _event in event.get():
+            if _event.type == QUIT:
+                running = False
+            if _event.type == MOUSEBUTTONDOWN:
+                for i in range(3):
+                    if input_rect[i].collidepoint(_event.pos):
+                        active[i] = True
+                        color[i] = color_active
+                    else:
+                        active[i] = False
+                        color[i] = color_passive
+            if _event.type == KEYDOWN:
+                for i in range(3):
+                    if active[i]:
+                        if _event.key == K_BACKSPACE:
+                            user_input[i] = user_input[i][:-1]
+                        else:
+                            temp = _event.unicode
+                            if not (len(user_input[i]) == 0 and temp == '0') and ('0' <= temp <= '9'):
+                                if len(user_input[i]) >= 1:
+                                    user_input[i] = '10'
+                                else:
+                                    user_input[i] += temp
+                if _event.key == K_SPACE:
+                    flag_continue = True
+                    running = False
+                if _event.key == K_ESCAPE:
+                    running = False
+                    showing_menu = True
+                    flag_continue = True
+            if _event.type == KEYUP:
+                pass
+        screen.fill(background_main)
+        print_text('free', color_black, 150, 200, font)
+        print_text('busy', color_black, 345, 200, font)
+        print_text('docu', color_black, 545, 200, font)
+        print_text_box('Enter the initial number of tokens in each place',
+                       400, 140, color_black, font)
+        print_text_box('Item 1: Specialist Network',
+                       400, 30, color_black, title_font)
+        print_text_box('Delete: Backspace  Confirm: Spacebar  Back: Esc',
+                       400, 545, color_black, tiny_font)
+        print_text_box('Click on a box to enter the required number',
+                       400, 560, color_black, tiny_font)
+        print_text_box('Note: You can only enter numbers. If a box is empty, a default value of 0 will be entered.',
+                       400, 590, color_black, tiny_font)
+        print_text_box('The maximum number of tokens a place can receive as input is 10',
+                       400, 575, color_black, tiny_font)
+        for i in range(3):
+            text_surface = font.render(user_input[i], True, color_black)
+            draw.rect(screen, color[i], input_rect[i])
+            screen.blit(
+                text_surface, (input_rect[i].x, input_rect[i].y))
+        display.update()
+    for i in range(3):
+        if len(user_input[i]):
+            user_input[i] = int(user_input[i])
+        else:
+            user_input[i] = 0
+    return user_input, flag_continue, showing_menu
+
+
 def input_prompt2():
     # Handling user input for item 2
     user_input = ["", "", ""]                           # Storing user inputs
@@ -185,81 +260,6 @@ def input_prompt2():
                        400, 140, color_black, font)
         print_text_box('Item 2: Patient Network', 400,
                        30, color_black, title_font)
-        print_text_box('Delete: Backspace  Confirm: Spacebar  Back: Esc',
-                       400, 545, color_black, tiny_font)
-        print_text_box('Click on a box to enter the required number',
-                       400, 560, color_black, tiny_font)
-        print_text_box('Note: You can only enter numbers. If a box is empty, a default value of 0 will be entered.',
-                       400, 590, color_black, tiny_font)
-        print_text_box('The maximum number of tokens a place can receive as input is 10',
-                       400, 575, color_black, tiny_font)
-        for i in range(3):
-            text_surface = font.render(user_input[i], True, color_black)
-            draw.rect(screen, color[i], input_rect[i])
-            screen.blit(
-                text_surface, (input_rect[i].x, input_rect[i].y))
-        display.update()
-    for i in range(3):
-        if len(user_input[i]):
-            user_input[i] = int(user_input[i])
-        else:
-            user_input[i] = 0
-    return user_input, flag_continue, showing_menu
-
-
-def input_prompt1():
-    # Handling user input for item 1
-    user_input = ["", "", ""]
-    flag_continue = False
-    showing_menu = False
-    input_rect = [Rect(200, 200, 80, 24), Rect(
-        400, 200, 80, 24), Rect(600, 200, 80, 24)]
-    color_active = Color(color_yellow)
-    color_passive = Color(color_white)
-    color = [color_passive, color_passive, color_passive]
-    active = [False, False, False]
-    running = True
-    while running:
-        for _event in event.get():
-            if _event.type == QUIT:
-                running = False
-            if _event.type == MOUSEBUTTONDOWN:
-                for i in range(3):
-                    if input_rect[i].collidepoint(_event.pos):
-                        active[i] = True
-                        color[i] = color_active
-                    else:
-                        active[i] = False
-                        color[i] = color_passive
-            if _event.type == KEYDOWN:
-                for i in range(3):
-                    if active[i]:
-                        if _event.key == K_BACKSPACE:
-                            user_input[i] = user_input[i][:-1]
-                        else:
-                            temp = _event.unicode
-                            if not (len(user_input[i]) == 0 and temp == '0') and ('0' <= temp <= '9'):
-                                if len(user_input[i]) >= 1:
-                                    user_input[i] = '10'
-                                else:
-                                    user_input[i] += temp
-                if _event.key == K_SPACE:
-                    flag_continue = True
-                    running = False
-                if _event.key == K_ESCAPE:
-                    running = False
-                    showing_menu = True
-                    flag_continue = True
-            if _event.type == KEYUP:
-                pass
-        screen.fill(background_main)
-        print_text('free', color_black, 150, 200, font)
-        print_text('busy', color_black, 345, 200, font)
-        print_text('docu', color_black, 545, 200, font)
-        print_text_box('Enter the initial number of tokens in each place',
-                       400, 140, color_black, font)
-        print_text_box('Item 1: Specialist Network',
-                       400, 30, color_black, title_font)
         print_text_box('Delete: Backspace  Confirm: Spacebar  Back: Esc',
                        400, 545, color_black, tiny_font)
         print_text_box('Click on a box to enter the required number',
@@ -368,24 +368,12 @@ def draw_arrow(start_pos, end_pos, other_pos1, other_pos2, color=color_black) ->
     draw.line(screen, color, other_pos2, end_pos, line_width)
 
 
-class Node:
-    # The parent class for class 'Transition'
-    def __init__(self, name: str) -> None:
-        self.name = name            # The label of the node
-        self.in_edges = []           # List of edges pointing to this node
-        self.out_edges = []          # List of edges pointing away from this node
-        self.posX = -1              # posX and posY for drawing this node on the game window
-        self.posY = -1
-        # Decides whether to put the label above or below its node on the game window
-        self.label_position = 'D'
-
-
 class Edge:
     # Represents a directed edge in a Petri Net
     def __init__(self, src, dst) -> None:
         self.src = src                  # The source node of this edge
         self.dst = dst                  # The destination of this edge
-        # Constructor automatically links src and dst using this node
+        # Constructor automatically links src and dst using this edge
         src.out_edges.append(self)
         dst.in_edges.append(self)
 
@@ -425,8 +413,17 @@ class Place:
             del out_edge
 
 
-class Transition(Node):
+class Transition:
     # Represents a transition in a Petri Net
+    def __init__(self, name: str) -> None:
+        self.name = name            # The label of the transition
+        self.in_edges = []          # List of edges pointing to this transition
+        self.out_edges = []         # List of edges pointing away from this transition
+        self.posX = -1              # posX and posY for drawing this transition on the game window
+        self.posY = -1
+        # Decides whether to put the label above or below its transition on the game window
+        self.label_position = 'D'
+
     def is_enabled(self) -> bool:
         # Return true if this transition is enabled i.e. all of the places
         # pointing to this transition has at least 1 token
@@ -436,8 +433,8 @@ class Transition(Node):
         return True
 
     def fire(self) -> None:
-        # Fire this transtion if it is enabled. Each place pointing to this transitions
-        # gives away 1 token. Each place pointed to by this transitions
+        # Fire this transition if it is enabled. Each place pointing to this transition
+        # gives away 1 token. Each place pointed to by this transition
         # receives 1 token.
         if self.is_enabled():
             for in_edge in self.in_edges:
