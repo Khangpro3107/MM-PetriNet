@@ -46,9 +46,10 @@ def draw_choice_box(text_color, background_color, choice_text, posY, posX=400) -
                    choice_font, True, background_color)
 
 
-def user_choice(current_pos: int) -> None:
+def draw_menu(current_pos: int) -> None:
     # Draw choice boxes and texts at the menu
-    print_text_box("Petri Net Modeling", 400, 70,
+    print_text_box("Mathematical Modelling Assignment - Semester 211", 400, 20, color_black, small_font)
+    print_text_box("Petri Network Modeling", 400, 70,
                    color_black, title_font, True)
     draw_choice_box(color_red, color_green, '  Simulate Item 1  ',
                     150, max(current_pos, 400))
@@ -72,7 +73,7 @@ def show_menu():
     while run:
         current_pos -= speed
         screen.fill(background_main)
-        user_choice(current_pos)
+        draw_menu(current_pos)
         if item_index == 0:             # If a specific text box is chosen then change its color
             draw_choice_box(color_black, color_yellow,
                             '  Simulate Item 1  ', 150)
@@ -121,6 +122,94 @@ def show_menu():
 
 def input_prompt1():
     # Handling user input for item 1
+    user_input = ["", "", ""]               # Storing user inputs
+    # Boolean variables to keep the game running
+    flag_continue = False
+    showing_menu = False
+    # Draw the text boxes in which the user will enter inputs
+    input_rect = [Rect(200, 200, 80, 24), Rect(
+        400, 200, 80, 24), Rect(600, 200, 80, 24)]
+    # Color changes if a text box is being selected
+    color_active = Color(color_yellow)
+    color_passive = Color(color_white)
+    # Active status of the three text boxes
+    color = [color_passive, color_passive, color_passive]
+    active = [False, False, False]
+    running = True
+    while running:
+        for _event in event.get():
+            if _event.type == QUIT:
+                running = False
+            if _event.type == MOUSEBUTTONDOWN:      # Mouse click
+                for i in range(3):
+                    # If mouse click is inside a text box -> Make it active and change color
+                    if input_rect[i].collidepoint(_event.pos):
+                        active[i] = True
+                        color[i] = color_active
+                    else:
+                        # If mouse click is outside a text box -> Make it not active and change color
+                        active[i] = False
+                        color[i] = color_passive
+            if _event.type == KEYDOWN:              # Key press down
+                for i in range(3):
+                    if active[i]:
+                        # 'Backspace' is pressed -> Delete user input on the left by 1 character
+                        if _event.key == K_BACKSPACE:
+                            user_input[i] = user_input[i][:-1]
+                        else:
+                            temp = _event.unicode       # If it is not 'Backspace'
+                            # Only accept number keys
+                            if not (len(user_input[i]) == 0 and temp == '0') and ('0' <= temp <= '9'):
+                                if len(user_input[i]) >= 1:
+                                    # Make the input smaller or equal to 10
+                                    user_input[i] = '10'
+                                else:
+                                    # Enter the number the user typed to the box
+                                    user_input[i] += temp
+                # 'Spacebar' is pressed -> Confirm user input and go to the next screen
+                if _event.key == K_SPACE:
+                    flag_continue = True
+                    running = False
+                # 'Esc' is pressed -> Go back to the previous screen
+                if _event.key == K_ESCAPE:
+                    running = False
+                    showing_menu = True
+                    flag_continue = True
+            if _event.type == KEYUP:
+                pass
+        # Draw needed stuff
+        screen.fill(background_main)
+        print_text('free', color_black, 150, 200, font)
+        print_text('busy', color_black, 345, 200, font)
+        print_text('docu', color_black, 545, 200, font)
+        print_text_box('Enter the initial number of tokens in each place',
+                       400, 140, color_black, font)
+        print_text_box('Item 1: Specialist Network',
+                       400, 30, color_black, title_font)
+        print_text_box('Delete: Backspace  Confirm: Spacebar  Back: Esc',
+                       400, 545, color_black, tiny_font)
+        print_text_box('Click on a box to enter the required number',
+                       400, 560, color_black, tiny_font)
+        print_text_box('Note: You can only enter numbers. If a box is empty, a default value of 0 will be entered.',
+                       400, 590, color_black, tiny_font)
+        print_text_box('The maximum number of tokens a place can receive as input is 10',
+                       400, 575, color_black, tiny_font)
+        for i in range(3):
+            text_surface = font.render(user_input[i], True, color_black)
+            draw.rect(screen, color[i], input_rect[i])
+            screen.blit(
+                text_surface, (input_rect[i].x, input_rect[i].y))
+        display.update()
+    for i in range(3):
+        if len(user_input[i]):
+            user_input[i] = int(user_input[i])
+        else:
+            user_input[i] = 0
+    return user_input, flag_continue, showing_menu
+
+
+def input_prompt2():
+    # Handling user input for item 2
     user_input = ["", "", ""]
     flag_continue = False
     showing_menu = False
@@ -158,100 +247,13 @@ def input_prompt1():
                 if _event.key == K_SPACE:
                     flag_continue = True
                     running = False
+                    showing_menu = False
                 if _event.key == K_ESCAPE:
                     running = False
                     showing_menu = True
                     flag_continue = True
             if _event.type == KEYUP:
                 pass
-        screen.fill(background_main)
-        print_text('free', color_black, 150, 200, font)
-        print_text('busy', color_black, 345, 200, font)
-        print_text('docu', color_black, 545, 200, font)
-        print_text_box('Enter the initial number of tokens in each place',
-                       400, 140, color_black, font)
-        print_text_box('Item 1: Specialist Network',
-                       400, 30, color_black, title_font)
-        print_text_box('Delete: Backspace  Confirm: Spacebar  Back: Esc',
-                       400, 545, color_black, tiny_font)
-        print_text_box('Click on a box to enter the required number',
-                       400, 560, color_black, tiny_font)
-        print_text_box('Note: You can only enter numbers. If a box is empty, a default value of 0 will be entered.',
-                       400, 590, color_black, tiny_font)
-        print_text_box('The maximum number of tokens a place can receive as input is 10',
-                       400, 575, color_black, tiny_font)
-        for i in range(3):
-            text_surface = font.render(user_input[i], True, color_black)
-            draw.rect(screen, color[i], input_rect[i])
-            screen.blit(
-                text_surface, (input_rect[i].x, input_rect[i].y))
-        display.update()
-    for i in range(3):
-        if len(user_input[i]):
-            user_input[i] = int(user_input[i])
-        else:
-            user_input[i] = 0
-    return user_input, flag_continue, showing_menu
-
-
-def input_prompt2():
-    # Handling user input for item 2
-    user_input = ["", "", ""]                           # Storing user inputs
-    # Boolean variables to keep the game running
-    flag_continue = False
-    showing_menu = False
-    # Draw the text boxes in which the user will enter inputs
-    input_rect = [Rect(200, 200, 80, 24), Rect(
-        400, 200, 80, 24), Rect(600, 200, 80, 24)]
-    # Color changes if a text box is being selected
-    color_active = Color(color_yellow)
-    color_passive = Color(color_white)
-    color = [color_passive, color_passive, color_passive]
-    # Active status of the three text boxes
-    active = [False, False, False]
-    running = True
-    while running:
-        for _event in event.get():
-            if _event.type == QUIT:
-                running = False
-            if _event.type == MOUSEBUTTONDOWN:                  # Mouse click
-                for i in range(3):
-                    # If mouse click is inside a text box -> Make it active and change color
-                    if input_rect[i].collidepoint(_event.pos):
-                        active[i] = True
-                        color[i] = color_active
-                    else:
-                        # If mouse click is outside a text box -> Make it not active and change color
-                        active[i] = False
-                        color[i] = color_passive
-            if _event.type == KEYDOWN:                          # Key press down
-                # One iteration for each text box
-                for i in range(3):
-                    if active[i]:
-                        if _event.key == K_BACKSPACE:           # 'Backspace' is pressed -> Delete user input on the left by 1 character
-                            user_input[i] = user_input[i][:-1]
-                        else:
-                            temp = _event.unicode               # If it is not 'Backspace'
-                            # Only accept number keys
-                            if not (len(user_input[i]) == 0 and temp == '0') and ('0' <= temp <= '9'):
-                                if len(user_input[i]) >= 1:
-                                    # Make the input smaller or equal to 10
-                                    user_input[i] = '10'
-                                else:
-                                    # Enter the number the user typed to the box
-                                    user_input[i] += temp
-                # 'Spacebar' is pressed -> Confirm user input and go to the net screen
-                if _event.key == K_SPACE:
-                    flag_continue = True
-                    running = False
-                    showing_menu = False
-                if _event.key == K_ESCAPE:                      # 'Esc' is pressed -> Go back to the previous screen
-                    running = False
-                    showing_menu = True
-                    flag_continue = True
-            if _event.type == KEYUP:
-                pass
-        # Draw needed stuff
         screen.fill(background_main)
         print_text('wait', color_black, 150, 200, font)
         print_text('inside', color_black, 335, 200, font)
@@ -283,7 +285,7 @@ def input_prompt2():
 
 
 def input_prompt3():
-    # Handling user input for item 3 (and 4)
+    # Handling user input for item 3
     user_input = ["", "", "", "", "", ""]
     flag_continue = False
     showing_menu = False
